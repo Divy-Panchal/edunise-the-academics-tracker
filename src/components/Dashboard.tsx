@@ -51,10 +51,11 @@ const Dashboard = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
-              className="w-56 bg-white dark:bg-gray-800 border border-border shadow-lg z-50"
+              className="w-56 bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border shadow-xl z-50 rounded-xl"
             >
-              <div className="px-2 py-1.5 text-sm font-medium text-foreground border-b border-border">
-                Alex Johnson
+              <div className="px-3 py-2 text-sm font-medium text-foreground border-b border-border/50">
+                <div className="font-semibold">Alex Johnson</div>
+                <div className="text-xs text-muted-foreground">alex@university.edu</div>
               </div>
               <DropdownMenuItem className="cursor-pointer hover:bg-muted/50 focus:bg-muted/50">
                 <Settings className="w-4 h-4 mr-2" />
@@ -105,7 +106,7 @@ const Dashboard = () => {
       {/* Main Cards */}
       <div className="space-y-4">
         {/* Upcoming Deadlines */}
-        <Card className="shadow-card bg-white/70 backdrop-blur-sm border-0 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+        <Card className="shadow-card bg-white/90 dark:bg-card/50 backdrop-blur-md border border-border/20 animate-fade-up" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Clock className="w-5 h-5 text-primary" />
@@ -113,23 +114,23 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-red-50 rounded-xl border-l-4 border-red-400">
+            <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/30 rounded-xl border-l-4 border-red-400 dark:border-red-500">
               <div>
-                <div className="font-medium text-sm">Math Assignment</div>
+                <div className="font-medium text-sm text-foreground">Math Assignment</div>
                 <div className="text-xs text-muted-foreground">Due in 2 hours</div>
               </div>
-              <div className="text-xs text-red-600 font-medium">URGENT</div>
+              <div className="text-xs text-red-600 dark:text-red-400 font-medium">URGENT</div>
             </div>
-            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-xl border-l-4 border-yellow-400">
+            <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-xl border-l-4 border-yellow-400 dark:border-yellow-500">
               <div>
-                <div className="font-medium text-sm">Physics Lab Report</div>
+                <div className="font-medium text-sm text-foreground">Physics Lab Report</div>
                 <div className="text-xs text-muted-foreground">Due tomorrow</div>
               </div>
-              <div className="text-xs text-yellow-600 font-medium">SOON</div>
+              <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">SOON</div>
             </div>
-            <div className="flex items-center justify-between p-3 bg-primary-light/20 rounded-xl border-l-4 border-primary">
+            <div className="flex items-center justify-between p-3 bg-primary-light/20 dark:bg-primary/20 rounded-xl border-l-4 border-primary">
               <div>
-                <div className="font-medium text-sm">History Essay</div>
+                <div className="font-medium text-sm text-foreground">History Essay</div>
                 <div className="text-xs text-muted-foreground">Due in 3 days</div>
               </div>
               <div className="text-xs text-primary font-medium">PENDING</div>
@@ -138,7 +139,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Next Class */}
-        <Card className="shadow-card bg-white/70 backdrop-blur-sm border-0 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+        <Card className="shadow-card bg-white/90 dark:bg-card/50 backdrop-blur-md border border-border/20 animate-fade-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
               <BookOpen className="w-5 h-5 text-secondary" />
@@ -146,7 +147,7 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-gradient-secondary p-4 rounded-xl text-white">
+            <div className="bg-gradient-secondary p-4 rounded-xl text-white shadow-soft">
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <div className="font-semibold">Calculus II</div>
@@ -163,7 +164,7 @@ const Dashboard = () => {
         </Card>
 
         {/* GPA Preview */}
-        <Card className="shadow-card bg-white/70 backdrop-blur-sm border-0 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+        <Card className="shadow-card bg-white/90 dark:bg-card/50 backdrop-blur-md border border-border/20 animate-fade-up" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
               <TrendingUp className="w-5 h-5 text-accent" />
@@ -171,15 +172,15 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-gradient-accent p-4 rounded-xl">
+            <div className="bg-gradient-accent p-4 rounded-xl shadow-soft">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-3xl font-bold text-accent-foreground">3.75</div>
-                  <div className="text-sm text-accent-foreground/70">This Semester</div>
+                  <div className="text-3xl font-bold text-white">3.75</div>
+                  <div className="text-sm text-white/80">This Semester</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-green-600 font-medium text-sm">↗ +0.12</div>
-                  <div className="text-xs text-accent-foreground/70">vs last semester</div>
+                  <div className="text-green-300 font-medium text-sm">↗ +0.12</div>
+                  <div className="text-xs text-white/80">vs last semester</div>
                 </div>
               </div>
             </div>
@@ -193,7 +194,7 @@ const Dashboard = () => {
           <Plus className="w-4 h-4 mr-2" />
           Add Task
         </Button>
-        <Button variant="outline" className="h-12 bg-white/80 border-border/50 transition-smooth hover:bg-white">
+        <Button variant="outline" className="h-12 bg-white/90 dark:bg-card/50 border-border/50 transition-smooth hover:bg-white dark:hover:bg-card/70 backdrop-blur-md">
           <Bell className="w-4 h-4 mr-2" />
           Reminders
         </Button>

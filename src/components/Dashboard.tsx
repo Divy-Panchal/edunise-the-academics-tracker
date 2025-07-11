@@ -1,8 +1,12 @@
-import { Calendar, Clock, BookOpen, TrendingUp, Plus, Bell } from "lucide-react";
+import { Calendar, Clock, BookOpen, TrendingUp, Plus, Bell, User, Settings, HelpCircle, Moon, Sun } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
 
 const Dashboard = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -10,12 +14,76 @@ const Dashboard = () => {
     day: 'numeric'
   });
 
+  useEffect(() => {
+    // Check system/localStorage preference for dark mode
+    const savedTheme = localStorage.getItem('theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDarkMode(savedTheme === 'dark' || (!savedTheme && systemDark));
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    document.documentElement.classList.toggle('dark', newMode);
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
+  };
+
   return (
     <div className="p-4 space-y-6 bg-gradient-bg min-h-screen">
       {/* Header */}
-      <div className="text-center space-y-2 animate-fade-up">
-        <h1 className="text-2xl font-bold text-foreground">Good morning, Alex! 👋</h1>
-        <p className="text-muted-foreground">{currentDate}</p>
+      <div className="relative animate-fade-up">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold text-foreground">Good morning, Alex! 👋</h1>
+          <p className="text-muted-foreground">{currentDate}</p>
+        </div>
+        
+        {/* Profile Dropdown */}
+        <div className="absolute top-0 right-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 w-10 rounded-full bg-gradient-primary text-white hover:shadow-glow transition-smooth"
+              >
+                <User className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-56 bg-white dark:bg-gray-800 border border-border shadow-lg z-50"
+            >
+              <div className="px-2 py-1.5 text-sm font-medium text-foreground border-b border-border">
+                Alex Johnson
+              </div>
+              <DropdownMenuItem className="cursor-pointer hover:bg-muted/50 focus:bg-muted/50">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer hover:bg-muted/50 focus:bg-muted/50">
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Help & Support
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="cursor-pointer hover:bg-muted/50 focus:bg-muted/50"
+                onClick={toggleDarkMode}
+              >
+                {isDarkMode ? (
+                  <>
+                    <Sun className="w-4 h-4 mr-2" />
+                    Light Mode
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-4 h-4 mr-2" />
+                    Dark Mode
+                  </>
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Quick Stats */}

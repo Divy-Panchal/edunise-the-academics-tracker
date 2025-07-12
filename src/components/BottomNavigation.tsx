@@ -1,4 +1,4 @@
-import { Home, Calendar, TrendingUp, Bell } from "lucide-react";
+import { Home, Calendar, TrendingUp, Target } from "lucide-react";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -10,7 +10,7 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "planner", label: "Planner", icon: Calendar },
     { id: "grades", label: "Grades", icon: TrendingUp },
-    { id: "reminders", label: "Reminders", icon: Bell }
+    { id: "focus", label: "Focus", icon: Target }
   ];
 
   return (

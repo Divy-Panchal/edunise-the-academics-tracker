@@ -5,9 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Switch } from "@/components/ui/switch";
 import AddReminderDialog from "./AddReminderDialog";
 import { useToast } from "@/hooks/use-toast";
+import DailyPlanner from "./DailyPlanner";
+import AssignmentTracker from "./AssignmentTracker";
+import ResourceLocker from "./ResourceLocker";
+import MotivationalTodo from "./MotivationalTodo";
+import QuickStats from "./QuickStats";
+import FlashcardQuiz from "./FlashcardQuiz";
+import CommunityChat from "./CommunityChat";
 import { 
   Calendar, 
   Clock, 
@@ -115,192 +121,134 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="p-4 space-y-6 bg-gradient-bg min-h-screen">
+    <div className="min-h-screen bg-gradient-bg p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between animate-fade-up">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Good morning, {profile?.display_name || 'Student'}! 👋
-          </h1>
-          <p className="text-muted-foreground">{currentDate}</p>
+          <h1 className="text-3xl font-bold text-foreground">Good morning, {profile?.display_name || 'Student'}! 👋</h1>
+          <p className="text-muted-foreground">Ready to make today productive?</p>
         </div>
         
-        {/* Profile Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={profile?.avatar_url} />
-                <AvatarFallback>
-                  {profile?.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U'}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-card/95 backdrop-blur-sm border border-border/50 shadow-card" align="end" forceMount>
-            <div className="flex items-center justify-start gap-2 p-2">
-              <div className="flex flex-col space-y-1 leading-none">
-                <p className="font-medium text-foreground">{profile?.display_name || 'User'}</p>
-                <p className="w-[200px] truncate text-sm text-muted-foreground">
-                  Profile Settings
+        <div className="flex items-center gap-3">
+          {/* Dark Mode Toggle */}
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={toggleDarkMode}
+            className="rounded-full shadow-soft"
+          >
+            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+
+          {/* Add Reminder Button */}
+          <AddReminderDialog onReminderAdded={loadReminders} />
+
+          {/* Profile Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-12 w-12 rounded-full shadow-soft">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={profile?.avatar_url || ""} alt="Profile" />
+                  <AvatarFallback className="bg-gradient-primary text-white text-lg">
+                    {profile?.display_name?.[0] || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 shadow-card" align="end" forceMount>
+              <div className="flex flex-col space-y-1 p-3">
+                <p className="text-sm font-medium leading-none">
+                  {profile?.display_name || "User"}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {currentDate}
                 </p>
               </div>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="flex items-center gap-2 hover:bg-muted/50 transition-smooth">
-              <Settings className="w-4 h-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={toggleDarkMode}
-              className="flex items-center gap-2 hover:bg-muted/50 transition-smooth"
-            >
-              {isDarkMode ? (
-                <>
-                  <Sun className="w-4 h-4" />
-                  Light Mode
-                </>
-              ) : (
-                <>
-                  <Moon className="w-4 h-4" />
-                  Dark Mode
-                </>
-              )}
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-2 hover:bg-muted/50 transition-smooth">
-              <HelpCircle className="w-4 h-4" />
-              Help & Support
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={handleLogout}
-              className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive transition-smooth"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4 animate-fade-up" style={{ animationDelay: '0.1s' }}>
-        <Card className="bg-gradient-primary text-white border-0 shadow-soft hover:shadow-glow transition-smooth">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold">{reminders.length}</div>
-            <div className="text-sm opacity-90">Active Reminders</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-secondary text-white border-0 shadow-soft hover:shadow-glow transition-smooth">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold">3.7</div>
-            <div className="text-sm opacity-90">Current GPA</div>
-          </CardContent>
-        </Card>
+      <QuickStats />
+
+      {/* Main Dashboard Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Daily Planner */}
+        <div className="xl:col-span-1">
+          <DailyPlanner />
+        </div>
+
+        {/* Assignment Tracker */}
+        <div className="xl:col-span-1">
+          <AssignmentTracker />
+        </div>
+
+        {/* Motivational Todo */}
+        <div className="xl:col-span-1">
+          <MotivationalTodo />
+        </div>
+
+        {/* Resource Locker */}
+        <div className="xl:col-span-1">
+          <ResourceLocker />
+        </div>
+
+        {/* Flashcard Quiz */}
+        <div className="xl:col-span-1">
+          <FlashcardQuiz />
+        </div>
+
+        {/* Community Chat */}
+        <div className="xl:col-span-1">
+          <CommunityChat />
+        </div>
       </div>
 
-      {/* Main Cards */}
-      <div className="space-y-4">
-        {/* Recent Reminders */}
-        <Card className="shadow-card bg-card/80 backdrop-blur-sm border border-border/50 animate-fade-up hover:shadow-soft transition-smooth" style={{ animationDelay: '0.2s' }}>
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-lg text-foreground flex items-center gap-2">
-              <Bell className="w-5 h-5 text-primary" />
-              Recent Reminders
-            </CardTitle>
-            <AddReminderDialog onReminderAdded={loadReminders} />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {reminders.length > 0 ? (
-              reminders.slice(0, 3).map((reminder: any) => (
-                <div key={reminder.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+      {/* Recent Reminders */}
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="w-5 h-5 text-primary" />
+            Recent Reminders
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {reminders.length === 0 ? (
+            <div className="text-center py-8">
+              <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">No reminders yet</p>
+              <p className="text-sm text-muted-foreground">Add your first reminder to get started!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {reminders.slice(0, 3).map((reminder: any) => (
+                <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:shadow-card transition-smooth">
                   <div>
-                    <p className="font-medium text-foreground">{reminder.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {reminder.reminder_time} • {reminder.reminder_date}
-                    </p>
+                    <h4 className="font-medium">{reminder.title}</h4>
+                    <p className="text-sm text-muted-foreground">{reminder.description}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary">{reminder.type}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {reminder.reminder_date} at {reminder.reminder_time}
+                      </span>
+                    </div>
                   </div>
-                  <Badge className={
-                    reminder.type === 'Assignment' ? 'bg-primary/10 text-primary border-primary/20' :
-                    reminder.type === 'Exam' ? 'bg-destructive/10 text-destructive border-destructive/20' :
-                    reminder.type === 'Study' ? 'bg-secondary/10 text-secondary border-secondary/20' :
-                    'bg-accent/10 text-accent-foreground border-accent/20'
-                  }>
-                    {reminder.type}
-                  </Badge>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-6 text-muted-foreground">
-                <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No reminders yet</p>
-                <p className="text-xs">Add your first reminder above</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Next Class */}
-        <Card className="shadow-card bg-card/80 backdrop-blur-sm border border-border/50 animate-fade-up hover:shadow-soft transition-smooth" style={{ animationDelay: '0.3s' }}>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg text-foreground flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-secondary" />
-              Next Class
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-gradient-secondary p-4 rounded-xl text-white shadow-soft">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="font-semibold">Calculus II</div>
-                  <div className="text-sm opacity-90">Room: Math Building 201</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">2:30 PM</div>
-                  <div className="text-xs opacity-90">in 45 mins</div>
-                </div>
-              </div>
-              <div className="text-xs opacity-80">Prof. Johnson • 90 minutes</div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* GPA Preview */}
-        <Card className="shadow-card bg-card/80 backdrop-blur-sm border border-border/50 animate-fade-up hover:shadow-soft transition-smooth" style={{ animationDelay: '0.4s' }}>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg text-foreground flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-accent" />
-              Current GPA
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-gradient-accent p-4 rounded-xl shadow-soft">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-white">3.75</div>
-                  <div className="text-sm text-white/80">This Semester</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-green-300 font-medium text-sm">↗ +0.12</div>
-                  <div className="text-xs text-white/80">vs last semester</div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3 animate-fade-up" style={{ animationDelay: '0.5s' }}>
-        <Button className="h-12 bg-gradient-primary text-white border-0 shadow-soft transition-smooth hover:shadow-glow">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Task
-        </Button>
-        <Button variant="outline" className="h-12 bg-card/50 border-border/50 transition-smooth hover:bg-card/70 backdrop-blur-md">
-          <Target className="w-4 h-4 mr-2" />
-          Focus Timer
-        </Button>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

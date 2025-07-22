@@ -166,7 +166,7 @@ const Dashboard = () => {
           </Button>
 
           {/* Add Reminder Button */}
-          <AddReminderDialog onReminderAdded={loadReminders} />
+          <AddReminderDialog onAddTask={() => Promise.resolve()} />
 
           {/* Profile Dropdown */}
           <DropdownMenu>

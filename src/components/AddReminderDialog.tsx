@@ -1,213 +1,190 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon, Plus } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
-interface AddReminderDialogProps {
-  onReminderAdded: () => void;
+interface Task {
+  id: string;
+  title: string;
+  date: Date;
+  time: string;
+  type: string;
+  priority: string;
+  subject: string;
+  completed: boolean;
 }
 
-const AddReminderDialog = ({ onReminderAdded }: AddReminderDialogProps) => {
+interface AddReminderDialogProps {
+  onAddTask: (task: Omit<Task, 'id' | 'completed'>) => void;
+  children?: React.ReactNode;
+}
+
+const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    reminder_time: "",
-    reminder_date: "Today",
-    type: "Personal",
-    recurring: false,
-    enabled: true
-  });
-  const { toast } = useToast();
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState<Date>();
+  const [time, setTime] = useState("");
+  const [type, setType] = useState("");
+  const [priority, setPriority] = useState("");
+  const [subject, setSubject] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
-      // Convert time to proper format
-      const timeValue = formData.reminder_time || "09:00";
+  const handleSubmit = () => {
+    if (title && date && time && type && priority && subject) {
+      onAddTask({
+        title,
+        date,
+        time,
+        type,
+        priority,
+        subject,
+      });
       
-      const { error } = await supabase
-        .from("reminders")
-        .insert({
-          user_id: user.id,
-          title: formData.title,
-          description: formData.description,
-          reminder_time: timeValue,
-          reminder_date: formData.reminder_date,
-          type: formData.type,
-          recurring: formData.recurring,
-          enabled: formData.enabled
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Reminder added",
-        description: "Your reminder has been successfully created.",
-      });
-
       // Reset form
-      setFormData({
-        title: "",
-        description: "",
-        reminder_time: "",
-        reminder_date: "Today",
-        type: "Personal",
-        recurring: false,
-        enabled: true
-      });
-
+      setTitle("");
+      setDate(undefined);
+      setTime("");
+      setType("");
+      setPriority("");
+      setSubject("");
       setOpen(false);
-      onReminderAdded();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-primary hover:bg-gradient-primary/90 text-white border-0 shadow-soft">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Reminder
-        </Button>
+        {children || (
+          <Button className="bg-gradient-primary text-white border-0 shadow-soft">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Task
+          </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="bg-card/95 backdrop-blur-sm border border-border/50 shadow-card max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Create New Reminder</DialogTitle>
+          <DialogTitle>Add New Task</DialogTitle>
+          <DialogDescription>
+            Create a new task with date, time, and priority settings.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="title">Task Title</Label>
             <Input
               id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Enter reminder title"
-              required
-              className="bg-card/50 border-border/50"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter task title..."
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label>Due Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="time">Time</Label>
+            <Input
+              id="time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Enter reminder description"
-              className="bg-card/50 border-border/50 resize-none"
-              rows={3}
+          <div className="grid gap-2">
+            <Label>Subject</Label>
+            <Input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Enter subject..."
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="time">Time</Label>
-              <Input
-                id="time"
-                type="time"
-                value={formData.reminder_time}
-                onChange={(e) => setFormData({ ...formData, reminder_time: e.target.value })}
-                className="bg-card/50 border-border/50"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
-              <Select
-                value={formData.reminder_date}
-                onValueChange={(value) => setFormData({ ...formData, reminder_date: value })}
-              >
-                <SelectTrigger className="bg-card/50 border-border/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Today">Today</SelectItem>
-                  <SelectItem value="Tomorrow">Tomorrow</SelectItem>
-                  <SelectItem value="This Week">This Week</SelectItem>
-                  <SelectItem value="Next Week">Next Week</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value) => setFormData({ ...formData, type: value })}
-            >
-              <SelectTrigger className="bg-card/50 border-border/50">
-                <SelectValue />
+          <div className="grid gap-2">
+            <Label>Type</Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select task type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Assignment">Assignment</SelectItem>
                 <SelectItem value="Exam">Exam</SelectItem>
+                <SelectItem value="Lab">Lab</SelectItem>
                 <SelectItem value="Study">Study</SelectItem>
-                <SelectItem value="Personal">Personal</SelectItem>
+                <SelectItem value="Project">Project</SelectItem>
+                <SelectItem value="Quiz">Quiz</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="recurring"
-                checked={formData.recurring}
-                onCheckedChange={(checked) => setFormData({ ...formData, recurring: checked })}
-              />
-              <Label htmlFor="recurring">Recurring</Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="enabled"
-                checked={formData.enabled}
-                onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
-              />
-              <Label htmlFor="enabled">Enabled</Label>
-            </div>
+          <div className="grid gap-2">
+            <Label>Priority</Label>
+            <Select value={priority} onValueChange={setPriority}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="High">High</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Low">Low</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="flex-1 bg-card/50 border-border/50"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-gradient-primary hover:bg-gradient-primary/90 text-white border-0"
-            >
-              {loading ? "Creating..." : "Create"}
-            </Button>
-          </div>
-        </form>
+        </div>
+        <DialogFooter>
+          <Button type="submit" onClick={handleSubmit}>
+            Add Task
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

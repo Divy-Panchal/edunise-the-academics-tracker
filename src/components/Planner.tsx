@@ -1,42 +1,101 @@
 import { useState } from "react";
-import { Calendar, Plus, Filter, Clock, Flag } from "lucide-react";
+import { Calendar, Plus, Filter, Clock, Flag, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import AddReminderDialog from "./AddReminderDialog";
+import { format, isSameDay } from "date-fns";
+
+interface Task {
+  id: string;
+  title: string;
+  date: Date;
+  time: string;
+  type: string;
+  priority: string;
+  subject: string;
+  completed: boolean;
+}
 
 const Planner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDateDialog, setShowDateDialog] = useState(false);
+  const [selectedDateTasks, setSelectedDateTasks] = useState<Task[]>([]);
   
-  const tasks = [
+  const [tasks, setTasks] = useState<Task[]>([
     {
-      id: 1,
+      id: "1",
       title: "Math Assignment - Chapter 12",
-      time: "2:00 PM",
+      date: new Date(),
+      time: "14:00",
       type: "Assignment",
       priority: "High",
       subject: "Mathematics",
       completed: false
     },
     {
-      id: 2,
+      id: "2",
       title: "Physics Lab Report",
-      time: "4:30 PM",
+      date: new Date(),
+      time: "16:30",
       type: "Lab",
       priority: "Medium",
       subject: "Physics",
       completed: false
     },
     {
-      id: 3,
+      id: "3",
       title: "Study Group - History",
-      time: "6:00 PM",
+      date: new Date(),
+      time: "18:00",
       type: "Study",
       priority: "Low",
       subject: "History",
       completed: true
     }
-  ];
+  ]);
+
+  const addTask = (newTask: Omit<Task, 'id' | 'completed'>) => {
+    const task: Task = {
+      ...newTask,
+      id: Date.now().toString(),
+      completed: false,
+    };
+    setTasks([...tasks, task]);
+  };
+
+  const deleteTask = (taskId: string) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
+  };
+
+  const toggleTaskComplete = (taskId: string) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
+  const handleDateClick = (date: Date) => {
+    const tasksForDate = tasks.filter(task => isSameDay(task.date, date));
+    setSelectedDateTasks(tasksForDate);
+    setSelectedDate(date);
+    setShowDateDialog(true);
+  };
+
+  const getTasksForDate = (date: Date) => {
+    return tasks.filter(task => isSameDay(task.date, date));
+  };
+
+  const getTodayTasks = () => {
+    return tasks.filter(task => isSameDay(task.date, new Date()));
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -73,12 +132,15 @@ const Planner = () => {
 
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const isToday = day === today.getDate();
-      const hasTask = [15, 18, 22, 25].includes(day); // Mock task indicators
+      const currentDate = new Date(year, month, day);
+      const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+      const dayTasks = getTasksForDate(currentDate);
+      const hasTask = dayTasks.length > 0;
       
       days.push(
         <div
           key={day}
+          onClick={() => handleDateClick(currentDate)}
           className={`h-10 flex items-center justify-center rounded-lg cursor-pointer transition-smooth relative ${
             isToday 
               ? 'bg-gradient-primary text-white shadow-soft' 
@@ -104,10 +166,7 @@ const Planner = () => {
           <h1 className="text-2xl font-bold text-foreground">Planner</h1>
           <p className="text-muted-foreground">Organize your academic life</p>
         </div>
-        <Button className="bg-gradient-primary text-white border-0 shadow-soft">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Task
-        </Button>
+        <AddReminderDialog onAddTask={addTask} />
       </div>
 
       {/* Tabs */}
@@ -129,15 +188,15 @@ const Planner = () => {
                 <Calendar className="w-5 h-5 text-primary" />
                 Today's Tasks
                 <Badge variant="secondary" className="ml-auto">
-                  {tasks.filter(t => !t.completed).length} pending
+                  {getTodayTasks().filter(t => !t.completed).length} pending
                 </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {tasks.map((task) => (
+              {getTodayTasks().map((task) => (
                 <div
                   key={task.id}
-                  className={`p-4 rounded-xl border transition-smooth ${
+                  className={`group p-4 rounded-xl border transition-smooth ${
                     task.completed 
                       ? 'bg-muted/30 opacity-60 border-muted' 
                       : 'bg-white/80 dark:bg-card/30 border-border/50 hover:shadow-soft'
@@ -146,6 +205,12 @@ const Planner = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
+                        <input
+                          type="checkbox"
+                          checked={task.completed}
+                          onChange={() => toggleTaskComplete(task.id)}
+                          className="w-4 h-4 rounded border-border"
+                        />
                         <h3 className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                           {task.title}
                         </h3>
@@ -158,9 +223,19 @@ const Planner = () => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-end">
-                      <Badge className={getTypeColor(task.type)}>
-                        {task.type}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getTypeColor(task.type)}>
+                          {task.type}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteTask(task.id)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-smooth"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                       <Badge variant="outline" className={getPriorityColor(task.priority)}>
                         <Flag className="w-3 h-3 mr-1" />
                         {task.priority}
@@ -170,7 +245,7 @@ const Planner = () => {
                 </div>
               ))}
               
-              {tasks.length === 0 && (
+              {getTodayTasks().length === 0 && (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
                     <Calendar className="w-8 h-8 text-muted-foreground" />
@@ -224,6 +299,73 @@ const Planner = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Date Tasks Dialog */}
+      <Dialog open={showDateDialog} onOpenChange={setShowDateDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              Tasks for {format(selectedDate, "MMMM d, yyyy")}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedDateTasks.length === 0 
+                ? "No tasks scheduled for this date." 
+                : `${selectedDateTasks.length} task(s) scheduled`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {selectedDateTasks.map((task) => (
+              <div
+                key={task.id}
+                className={`p-3 rounded-lg border ${
+                  task.completed 
+                    ? 'bg-muted/30 opacity-60 border-muted' 
+                    : 'bg-card border-border'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="checkbox"
+                        checked={task.completed}
+                        onChange={() => toggleTaskComplete(task.id)}
+                        className="w-4 h-4 rounded border-border"
+                      />
+                      <h4 className={`font-medium text-sm ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                        {task.title}
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      {task.time}
+                      <span>•</span>
+                      <span>{task.subject}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 items-end">
+                     <Badge className={getTypeColor(task.type)}>
+                       {task.type}
+                     </Badge>
+                     <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                       {task.priority}
+                     </Badge>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {selectedDateTasks.length === 0 && (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground">No tasks for this date</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

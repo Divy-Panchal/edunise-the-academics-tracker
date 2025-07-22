@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, AlertTriangle, CheckCircle, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar, Clock, AlertTriangle, CheckCircle, Plus, Trash2 } from "lucide-react";
 
 interface Assignment {
   id: string;
@@ -45,6 +46,30 @@ const AssignmentTracker = () => {
     }
   ]);
 
+  const [newAssignment, setNewAssignment] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const addAssignment = () => {
+    if (newAssignment.trim()) {
+      const newAssignmentItem: Assignment = {
+        id: Date.now().toString(),
+        title: newAssignment,
+        subject: "General",
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+        priority: "medium",
+        status: "pending",
+        progress: 0
+      };
+      setAssignments([...assignments, newAssignmentItem]);
+      setNewAssignment("");
+      setShowAddForm(false);
+    }
+  };
+
+  const deleteAssignment = (id: string) => {
+    setAssignments(assignments.filter(assignment => assignment.id !== id));
+  };
+
   const getPriorityStyle = (priority: string) => {
     switch (priority) {
       case "high":
@@ -82,19 +107,33 @@ const AssignmentTracker = () => {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">Assignments</CardTitle>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={() => setShowAddForm(!showAddForm)}>
             <Plus className="w-4 h-4" />
             Add
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        {showAddForm && (
+          <div className="flex gap-2 p-3 border border-dashed border-border rounded-lg">
+            <Input
+              placeholder="Assignment title..."
+              value={newAssignment}
+              onChange={(e) => setNewAssignment(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && addAssignment()}
+              className="flex-1"
+            />
+            <Button onClick={addAssignment} size="sm">
+              Add
+            </Button>
+          </div>
+        )}
         {assignments.map((assignment) => {
           const daysLeft = getDaysLeft(assignment.dueDate);
           return (
             <div
               key={assignment.id}
-              className="p-4 rounded-xl bg-card border border-border hover:shadow-card transition-smooth"
+              className="group p-4 rounded-xl bg-card border border-border hover:shadow-card transition-smooth"
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
@@ -106,6 +145,14 @@ const AssignmentTracker = () => {
                   <Badge className={`text-xs ${getPriorityStyle(assignment.priority)}`}>
                     {assignment.priority}
                   </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteAssignment(assignment.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-smooth"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
               

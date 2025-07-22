@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Plus, GripVertical } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Clock, Plus, GripVertical, Trash2 } from "lucide-react";
 
 interface ScheduleItem {
   id: string;
@@ -41,6 +42,29 @@ const DailyPlanner = () => {
     }
   ]);
 
+  const [newScheduleItem, setNewScheduleItem] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const addScheduleItem = () => {
+    if (newScheduleItem.trim()) {
+      const newItem: ScheduleItem = {
+        id: Date.now().toString(),
+        title: newScheduleItem,
+        time: "14:00",
+        duration: "1h",
+        category: "study",
+        color: "bg-gradient-secondary"
+      };
+      setScheduleItems([...scheduleItems, newItem]);
+      setNewScheduleItem("");
+      setShowAddForm(false);
+    }
+  };
+
+  const deleteScheduleItem = (id: string) => {
+    setScheduleItems(scheduleItems.filter(item => item.id !== id));
+  };
+
   const getCategoryStyle = (category: string) => {
     switch (category) {
       case "class":
@@ -61,13 +85,27 @@ const DailyPlanner = () => {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">Today's Schedule</CardTitle>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={() => setShowAddForm(!showAddForm)}>
             <Plus className="w-4 h-4" />
             Add
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        {showAddForm && (
+          <div className="flex gap-2 p-3 border border-dashed border-border rounded-lg">
+            <Input
+              placeholder="Schedule item title..."
+              value={newScheduleItem}
+              onChange={(e) => setNewScheduleItem(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && addScheduleItem()}
+              className="flex-1"
+            />
+            <Button onClick={addScheduleItem} size="sm">
+              Add
+            </Button>
+          </div>
+        )}
         {scheduleItems.map((item) => (
           <div
             key={item.id}
@@ -84,11 +122,25 @@ const DailyPlanner = () => {
               </div>
               <h4 className="font-medium text-sm truncate">{item.title}</h4>
             </div>
-            <div className={`w-3 h-3 rounded-full ${getCategoryStyle(item.category)}`} />
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full ${getCategoryStyle(item.category)}`} />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteScheduleItem(item.id)}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-smooth"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         ))}
         <div className="pt-2">
-          <Button variant="outline" className="w-full gap-2 border-dashed">
+          <Button 
+            variant="outline" 
+            className="w-full gap-2 border-dashed"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
             <Plus className="w-4 h-4" />
             Add new schedule item
           </Button>

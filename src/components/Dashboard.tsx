@@ -13,7 +13,7 @@ import ResourceLocker from "./ResourceLocker";
 import MotivationalTodo from "./MotivationalTodo";
 import QuickStats from "./QuickStats";
 import FlashcardQuiz from "./FlashcardQuiz";
-import CommunityChat from "./CommunityChat";
+
 import { 
   Calendar, 
   Clock, 
@@ -28,7 +28,8 @@ import {
   Bell,
   Plus,
   Target,
-  LogOut
+  LogOut,
+  Trash2
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -97,6 +98,30 @@ const Dashboard = () => {
     }
   };
 
+  const deleteReminder = async (reminderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('reminders')
+        .delete()
+        .eq('id', reminderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Reminder deleted",
+        description: "Reminder has been successfully deleted.",
+      });
+      
+      loadReminders();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -121,7 +146,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-bg p-4 space-y-6">
+    <div className="min-h-screen bg-gradient-bg p-2 md:p-4 space-y-4 md:space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -208,10 +233,6 @@ const Dashboard = () => {
           <FlashcardQuiz />
         </div>
 
-        {/* Community Chat */}
-        <div className="xl:col-span-1">
-          <CommunityChat />
-        </div>
       </div>
 
       {/* Recent Reminders */}
@@ -233,7 +254,7 @@ const Dashboard = () => {
             <div className="space-y-3">
               {reminders.slice(0, 3).map((reminder: any) => (
                 <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:shadow-card transition-smooth">
-                  <div>
+                  <div className="flex-1">
                     <h4 className="font-medium">{reminder.title}</h4>
                     <p className="text-sm text-muted-foreground">{reminder.description}</p>
                     <div className="flex items-center gap-2 mt-2">
@@ -243,6 +264,14 @@ const Dashboard = () => {
                       </span>
                     </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteReminder(reminder.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               ))}
             </div>

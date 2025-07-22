@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Flame, Target, TrendingUp, Star } from "lucide-react";
+import { Plus, Flame, Target, TrendingUp, Star, Trash2 } from "lucide-react";
 
 interface TodoItem {
   id: string;
@@ -67,6 +67,10 @@ const MotivationalTodo = () => {
       }
       return todo;
     }));
+  };
+
+  const deleteTodo = (id: string) => {
+    setTodos(todos.filter(todo => todo.id !== id));
   };
 
   const completedToday = todos.filter(todo => todo.completed).length;
@@ -148,7 +152,7 @@ const MotivationalTodo = () => {
           {todos.map((todo) => (
             <div
               key={todo.id}
-              className={`flex items-center gap-3 p-3 rounded-lg border transition-smooth ${
+            className={`group flex items-center gap-3 p-3 rounded-lg border transition-smooth ${
                 todo.completed
                   ? "bg-muted/50 opacity-75"
                   : "bg-card hover:shadow-card"
@@ -179,6 +183,14 @@ const MotivationalTodo = () => {
                   </Badge>
                 </div>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteTodo(todo.id)}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-smooth"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
           ))}
         </div>

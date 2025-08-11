@@ -44,6 +44,8 @@ const EduNiseApp = () => {
         return <Dashboard />;
       case "planner":
         return <Planner />;
+      case "chat":
+        return <CommunityChat />;
       case "grades":
         return <GradeTracker />;
       case "focus":
@@ -55,10 +57,22 @@ const EduNiseApp = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-bg flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-secondary/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+        
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground">Loading...</p>
+          <div className="w-16 h-16 bg-gradient-primary rounded-2xl mx-auto flex items-center justify-center shadow-soft animate-pulse-glow">
+            <GraduationCap className="w-8 h-8 text-white animate-bounce-gentle" />
+          </div>
+          <div className="space-y-2">
+            <div className="w-32 h-2 bg-primary/20 rounded-full mx-auto animate-pulse"></div>
+            <div className="w-24 h-2 bg-primary/10 rounded-full mx-auto animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          </div>
+          <p className="text-muted-foreground animate-fade-up">Loading your workspace...</p>
         </div>
       </div>
     );
@@ -69,11 +83,14 @@ const EduNiseApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-bg pb-20">
+    <div className="min-h-screen bg-gradient-bg">
       {renderActiveScreen()}
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };
+
+import { GraduationCap } from "lucide-react";
+import CommunityChat from "./CommunityChat";
 
 export default EduNiseApp;

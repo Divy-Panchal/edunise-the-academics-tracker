@@ -146,21 +146,24 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-bg p-2 md:p-4 space-y-4 md:space-y-6">
+    <div className="min-h-screen bg-gradient-bg p-2 md:p-4 space-y-4 md:space-y-6 pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-slide-in-up">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Good morning, {profile?.display_name || 'Student'}! 👋</h1>
+          <h1 className="text-3xl font-bold text-foreground animate-fade-up">
+            Good morning, {profile?.display_name || 'Student'}! 
+            <span className="inline-block animate-bounce-gentle ml-2">👋</span>
+          </h1>
           <p className="text-muted-foreground">Ready to make today productive?</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 animate-slide-in-right">
           {/* Dark Mode Toggle */}
           <Button 
             variant="outline" 
             size="icon" 
             onClick={toggleDarkMode}
-            className="rounded-full shadow-soft"
+            className="rounded-full shadow-soft hover-lift"
           >
             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
@@ -171,10 +174,10 @@ const Dashboard = () => {
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-12 w-12 rounded-full shadow-soft">
+              <Button variant="ghost" className="relative h-12 w-12 rounded-full shadow-soft hover-lift">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={profile?.avatar_url || ""} alt="Profile" />
-                  <AvatarFallback className="bg-gradient-primary text-white text-lg">
+                  <AvatarFallback className="bg-gradient-primary text-white text-lg animate-pulse-glow">
                     {profile?.display_name?.[0] || "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -204,42 +207,44 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Stats */}
-      <QuickStats />
+      <div className="animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
+        <QuickStats />
+      </div>
 
       {/* Main Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
         {/* Daily Planner */}
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-1 hover-lift">
           <DailyPlanner />
         </div>
 
         {/* Assignment Tracker */}
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-1 hover-lift">
           <AssignmentTracker />
         </div>
 
         {/* Motivational Todo */}
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-1 hover-lift">
           <MotivationalTodo />
         </div>
 
         {/* Resource Locker */}
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-1 hover-lift">
           <ResourceLocker />
         </div>
 
         {/* Flashcard Quiz */}
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-1 hover-lift">
           <FlashcardQuiz />
         </div>
 
       </div>
 
       {/* Recent Reminders */}
-      <Card className="shadow-card">
+      <Card className="shadow-card hover-lift animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary" />
+            <Bell className="w-5 h-5 text-primary animate-bounce-gentle" />
             Recent Reminders
           </CardTitle>
         </CardHeader>
@@ -253,7 +258,7 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-3">
               {reminders.slice(0, 3).map((reminder: any) => (
-                <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:shadow-card transition-smooth">
+                <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:shadow-card transition-smooth hover-lift animate-scale-in">
                   <div className="flex-1">
                     <h4 className="font-medium">{reminder.title}</h4>
                     <p className="text-sm text-muted-foreground">{reminder.description}</p>
@@ -268,7 +273,7 @@ const Dashboard = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => deleteReminder(reminder.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 hover:scale-110 transition-all duration-200"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

@@ -58,9 +58,9 @@ const QuickStats = () => {
         const Icon = stat.icon;
         return (
           <Card key={index} className="shadow-card hover:shadow-soft transition-smooth">
-            <CardContent className="p-4">
+            <CardContent className="p-4 animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="flex items-center justify-between mb-2">
-                <div className={`p-2 rounded-lg ${stat.gradient} text-white`}>
+                <div className={`p-2 rounded-lg ${stat.gradient} text-white animate-pulse-glow`}>
                   <Icon className="w-4 h-4" />
                 </div>
                 <span className={`text-xs font-medium ${
@@ -70,7 +70,7 @@ const QuickStats = () => {
                 </span>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                <div className="text-2xl font-bold text-foreground animate-bounce-gentle">{stat.value}</div>
                 <div className="text-xs text-muted-foreground">{stat.title}</div>
                 {stat.subtitle && (
                   <div className="text-xs text-muted-foreground opacity-75">{stat.subtitle}</div>

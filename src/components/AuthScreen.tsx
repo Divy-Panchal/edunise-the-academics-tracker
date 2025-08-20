@@ -18,7 +18,6 @@ const AuthScreen = ({ onAuthSuccess }: AuthScreenProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,11 +32,7 @@ const AuthScreen = ({ onAuthSuccess }: AuthScreenProps) => {
   }, [onAuthSuccess]);
 
   const handleModeSwitch = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setIsSignUp(!isSignUp);
-      setIsAnimating(false);
-    }, 150);
+    setIsSignUp(!isSignUp);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -157,9 +152,43 @@ const AuthScreen = ({ onAuthSuccess }: AuthScreenProps) => {
             </CardHeader>
 
             <CardContent className="space-y-6">
+              {/* Mode Selection */}
+              <div className="relative grid grid-cols-2 gap-1 p-1 bg-muted rounded-lg mb-6">
+                {/* Animated Background */}
+                <div 
+                  className="absolute top-1 bottom-1 bg-primary rounded-md transition-all duration-500 ease-out shadow-sm"
+                  style={{
+                    width: 'calc(50% - 4px)',
+                    left: isSignUp ? 'calc(50% + 2px)' : '2px',
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsSignUp(false)}
+                  className={`relative z-10 transition-colors duration-300 ${
+                    !isSignUp ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsSignUp(true)}
+                  className={`relative z-10 transition-colors duration-300 ${
+                    isSignUp ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Sign Up
+                </Button>
+              </div>
+
               <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
                 {/* Name Field - Only for Sign Up */}
-                <div className={`transition-all duration-300 ${isSignUp ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                <div className={`transition-all duration-500 ease-out ${
+                  isSignUp 
+                    ? 'opacity-100 max-h-20 transform translate-y-0' 
+                    : 'opacity-0 max-h-0 transform -translate-y-2 overflow-hidden'
+                }`}>
                   <Label htmlFor="name" className="text-foreground font-medium">Full Name</Label>
                   <div className="relative mt-1">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -176,7 +205,7 @@ const AuthScreen = ({ onAuthSuccess }: AuthScreenProps) => {
                 </div>
 
                 {/* Email Field */}
-                <div className={`transition-all duration-300 ${isAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
+                <div className="transition-all duration-300">
                   <Label htmlFor="email" className="text-foreground font-medium">Email</Label>
                   <div className="relative mt-1">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -193,7 +222,7 @@ const AuthScreen = ({ onAuthSuccess }: AuthScreenProps) => {
                 </div>
 
                 {/* Password Field */}
-                <div className={`transition-all duration-300 ${isAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
+                <div className="transition-all duration-300">
                   <Label htmlFor="password" className="text-foreground font-medium">Password</Label>
                   <div className="relative mt-1">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -223,7 +252,11 @@ const AuthScreen = ({ onAuthSuccess }: AuthScreenProps) => {
                 </div>
 
                 {/* Forgot Password - Only for Sign In */}
-                {!isSignUp && (
+                <div className={`transition-all duration-500 ease-out ${
+                  !isSignUp 
+                    ? 'opacity-100 max-h-8 transform translate-y-0' 
+                    : 'opacity-0 max-h-0 transform -translate-y-2 overflow-hidden'
+                }`}>
                   <div className="text-right">
                     <button
                       type="button"
@@ -232,7 +265,7 @@ const AuthScreen = ({ onAuthSuccess }: AuthScreenProps) => {
                       Forgot Password?
                     </button>
                   </div>
-                )}
+                </div>
 
                 {/* Submit Button */}
                 <Button

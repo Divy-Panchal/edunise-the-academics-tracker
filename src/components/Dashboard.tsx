@@ -138,6 +138,24 @@ const Dashboard = () => {
     }
   };
 
+  const getCurrentTime = () => {
+    return new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const [currentTime, setCurrentTime] = useState(getCurrentTime());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(getCurrentTime());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -150,6 +168,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between animate-slide-in-up">
         <div>
+          <div className="text-sm text-muted-foreground mb-1">{currentTime}</div>
           <h1 className="text-3xl font-bold text-foreground animate-fade-up">
             Good morning, {profile?.display_name || 'Student'}! 
             <span className="inline-block animate-bounce-gentle ml-2">👋</span>
@@ -206,42 +225,26 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
-        <QuickStats />
-      </div>
-
       {/* Main Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
         {/* Daily Planner */}
-        <div className="xl:col-span-1 hover-lift">
+        <div className="lg:col-span-2 hover-lift">
           <DailyPlanner />
         </div>
 
         {/* Assignment Tracker */}
-        <div className="xl:col-span-1 hover-lift">
+        <div className="hover-lift">
           <AssignmentTracker />
         </div>
 
         {/* Motivational Todo */}
-        <div className="xl:col-span-1 hover-lift">
+        <div className="hover-lift">
           <MotivationalTodo />
         </div>
-
-        {/* Resource Locker */}
-        <div className="xl:col-span-1 hover-lift">
-          <ResourceLocker />
-        </div>
-
-        {/* Flashcard Quiz */}
-        <div className="xl:col-span-1 hover-lift">
-          <FlashcardQuiz />
-        </div>
-
       </div>
 
       {/* Recent Reminders */}
-      <Card className="shadow-card hover-lift animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+      <Card className="shadow-card hover-lift animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-primary animate-bounce-gentle" />
@@ -283,6 +286,11 @@ const Dashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Quick Stats - Moved to bottom */}
+      <div className="animate-slide-in-up" style={{ animationDelay: '0.3s' }}>
+        <QuickStats />
+      </div>
     </div>
   );
 };

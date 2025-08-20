@@ -44,8 +44,8 @@ const EduNiseApp = () => {
         return <Dashboard />;
       case "planner":
         return <Planner />;
-      case "chat":
-        return <CommunityChat />;
+      case "resources":
+        return <ResourcesPage />;
       case "grades":
         return <GradeTracker />;
       case "focus":
@@ -91,6 +91,6 @@ const EduNiseApp = () => {
 };
 
 import { GraduationCap } from "lucide-react";
-import CommunityChat from "./CommunityChat";
+import ResourcesPage from "./ResourcesPage";
 
 export default EduNiseApp;

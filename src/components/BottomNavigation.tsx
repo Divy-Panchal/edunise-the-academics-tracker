@@ -9,7 +9,7 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
   const tabs = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "planner", label: "Planner", icon: Calendar },
-    { id: "chat", label: "Chat", icon: MessageCircle },
+    { id: "resources", label: "Resources", icon: MessageCircle },
     { id: "grades", label: "Grades", icon: TrendingUp },
     { id: "focus", label: "Focus", icon: Target }
   ];

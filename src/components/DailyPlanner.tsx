@@ -182,15 +182,6 @@ const DailyPlanner = () => {
           </div>
         ))}
         <div className="pt-2">
-          <Button 
-            variant="outline" 
-            className="w-full gap-2 border-dashed hover:bg-primary/10 hover:border-primary/30"
-            onClick={() => setShowAddForm(!showAddForm)}
-          >
-            <Plus className="w-4 h-4" />
-            Add new task
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );

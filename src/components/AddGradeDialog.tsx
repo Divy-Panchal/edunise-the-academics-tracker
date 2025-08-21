@@ -146,47 +146,46 @@ export const AddGradeDialog = ({ subjects, onAddGrade, onAddSubject }: AddGradeD
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-primary hover:opacity-90 text-white border-0 shadow-elegant transition-all duration-300 hover:shadow-glow">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Grade
+        <Button className="bg-gradient-primary hover:opacity-90 text-white border-0 shadow-elegant transition-all duration-300 hover:shadow-glow text-sm px-3 py-2 h-9">
+          <Plus className="w-4 h-4 mr-1" />
+          Add
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogContent className="sm:max-w-[90vw] md:max-w-md bg-card border-border max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Add New Grade or Subject</DialogTitle>
+          <DialogTitle className="text-foreground text-lg">Add Grade/Subject</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Choose whether to add a grade to an existing subject or create a new subject.
+            Add a grade or create a new subject.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Mode Selection */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1">
             <Button
               variant={mode === 'grade' ? 'default' : 'outline'}
               onClick={() => setMode('grade')}
-              className="w-full"
+              className="w-full text-sm h-8"
             >
-              <GraduationCap className="w-4 h-4 mr-2" />
+              <GraduationCap className="w-3 h-3 mr-1" />
               Add Grade
             </Button>
             <Button
               variant={mode === 'subject' ? 'default' : 'outline'}
               onClick={() => setMode('subject')}
-              className="w-full"
+              className="w-full text-sm h-8"
             >
-              <Calendar className="w-4 h-4 mr-2" />
+              <Calendar className="w-3 h-3 mr-1" />
               Add Subject
             </Button>
           </div>
 
           {mode === 'grade' ? (
-            <Card className="bg-muted/30 border-border">
-              <CardContent className="p-4 space-y-4">
+            <div className="space-y-3">
                 <div className="space-y-2">
-                  <Label htmlFor="subject" className="text-foreground">Subject</Label>
+                  <Label htmlFor="subject" className="text-foreground text-sm">Subject</Label>
                   <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                    <SelectTrigger className="bg-background border-border">
+                    <SelectTrigger className="bg-background border-border h-9">
                       <SelectValue placeholder="Select a subject" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border">
@@ -200,9 +199,9 @@ export const AddGradeDialog = ({ subjects, onAddGrade, onAddSubject }: AddGradeD
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="type" className="text-foreground">Grade Type</Label>
+                  <Label htmlFor="type" className="text-foreground text-sm">Grade Type</Label>
                   <Select value={gradeForm.type} onValueChange={(value) => setGradeForm(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger className="bg-background border-border">
+                    <SelectTrigger className="bg-background border-border h-9">
                       <SelectValue placeholder="Select grade type" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border">
@@ -215,101 +214,99 @@ export const AddGradeDialog = ({ subjects, onAddGrade, onAddSubject }: AddGradeD
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
-                    <Label htmlFor="score" className="text-foreground">Score</Label>
+                    <Label htmlFor="score" className="text-foreground text-sm">Score</Label>
                     <Input
                       id="score"
                       type="number"
                       value={gradeForm.score}
                       onChange={(e) => setGradeForm(prev => ({ ...prev, score: e.target.value }))}
                       placeholder="85"
-                      className="bg-background border-border text-foreground"
+                      className="bg-background border-border text-foreground h-9"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="maxScore" className="text-foreground">Max Score</Label>
+                    <Label htmlFor="maxScore" className="text-foreground text-sm">Max</Label>
                     <Input
                       id="maxScore"
                       type="number"
                       value={gradeForm.maxScore}
                       onChange={(e) => setGradeForm(prev => ({ ...prev, maxScore: e.target.value }))}
                       placeholder="100"
-                      className="bg-background border-border text-foreground"
+                      className="bg-background border-border text-foreground h-9"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
-                    <Label htmlFor="weight" className="text-foreground">Weight (%)</Label>
+                    <Label htmlFor="weight" className="text-foreground text-sm">Weight (%)</Label>
                     <Input
                       id="weight"
                       type="number"
                       value={gradeForm.weight}
                       onChange={(e) => setGradeForm(prev => ({ ...prev, weight: e.target.value }))}
                       placeholder="20"
-                      className="bg-background border-border text-foreground"
+                      className="bg-background border-border text-foreground h-9"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="date" className="text-foreground">Date</Label>
+                    <Label htmlFor="date" className="text-foreground text-sm">Date</Label>
                     <Input
                       id="date"
                       type="date"
                       value={gradeForm.date}
                       onChange={(e) => setGradeForm(prev => ({ ...prev, date: e.target.value }))}
-                      className="bg-background border-border text-foreground"
+                      className="bg-background border-border text-foreground h-9"
                     />
                   </div>
                 </div>
 
-                <Button onClick={handleAddGrade} className="w-full bg-gradient-primary text-white">
+                <Button onClick={handleAddGrade} className="w-full bg-gradient-primary text-white h-9">
                   Add Grade
                 </Button>
-              </CardContent>
-            </Card>
+            </div>
           ) : (
-            <Card className="bg-muted/30 border-border">
-              <CardContent className="p-4 space-y-4">
+            <div className="space-y-3">
                 <div className="space-y-2">
-                  <Label htmlFor="subjectName" className="text-foreground">Subject Name</Label>
+                  <Label htmlFor="subjectName" className="text-foreground text-sm">Subject Name</Label>
                   <Input
                     id="subjectName"
                     value={subjectForm.name}
                     onChange={(e) => setSubjectForm(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Calculus II"
-                    className="bg-background border-border text-foreground"
+                    className="bg-background border-border text-foreground h-9"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="subjectCode" className="text-foreground">Subject Code</Label>
+                  <Label htmlFor="subjectCode" className="text-foreground text-sm">Subject Code</Label>
                   <Input
                     id="subjectCode"
                     value={subjectForm.code}
                     onChange={(e) => setSubjectForm(prev => ({ ...prev, code: e.target.value }))}
                     placeholder="MATH 251"
-                    className="bg-background border-border text-foreground"
+                    className="bg-background border-border text-foreground h-9"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
-                    <Label htmlFor="credits" className="text-foreground">Credits</Label>
+                    <Label htmlFor="credits" className="text-foreground text-sm">Credits</Label>
                     <Input
                       id="credits"
                       type="number"
                       value={subjectForm.credits}
                       onChange={(e) => setSubjectForm(prev => ({ ...prev, credits: e.target.value }))}
                       placeholder="3"
-                      className="bg-background border-border text-foreground"
+                      className="bg-background border-border text-foreground h-9"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="semester" className="text-foreground">Semester</Label>
+                    <Label htmlFor="semester" className="text-foreground text-sm">Semester</Label>
                     <Select value={subjectForm.semester} onValueChange={(value) => setSubjectForm(prev => ({ ...prev, semester: value }))}>
-                      <SelectTrigger className="bg-background border-border">
+                      <SelectTrigger className="bg-background border-border h-9">
                         <SelectValue placeholder="Select semester" />
                       </SelectTrigger>
                       <SelectContent className="bg-background border-border">
@@ -323,11 +320,10 @@ export const AddGradeDialog = ({ subjects, onAddGrade, onAddSubject }: AddGradeD
                   </div>
                 </div>
 
-                <Button onClick={handleAddSubject} className="w-full bg-gradient-primary text-white">
+                <Button onClick={handleAddSubject} className="w-full bg-gradient-primary text-white h-9">
                   Add Subject
                 </Button>
-              </CardContent>
-            </Card>
+            </div>
           )}
         </div>
       </DialogContent>

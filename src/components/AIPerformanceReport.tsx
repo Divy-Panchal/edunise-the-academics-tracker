@@ -1,7 +1,9 @@
-import { Brain, TrendingUp, TrendingDown, AlertTriangle, Target, BookOpen } from "lucide-react";
+import { Brain, TrendingUp, TrendingDown, AlertTriangle, Target, BookOpen, BarChart3, Calendar, Clock, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 
 interface Grade {
   id: string;
@@ -103,6 +105,141 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
     return 0.0;
   };
 
+  // Enhanced Analytics Functions
+  const getPerformanceByGradeType = () => {
+    const gradeTypeMap = new Map();
+    
+    subjects.forEach(subject => {
+      subject.grades.forEach(grade => {
+        const percentage = (grade.score / grade.maxScore) * 100;
+        if (!gradeTypeMap.has(grade.type)) {
+          gradeTypeMap.set(grade.type, { total: 0, count: 0, scores: [] });
+        }
+        const current = gradeTypeMap.get(grade.type);
+        current.total += percentage;
+        current.count += 1;
+        current.scores.push(percentage);
+      });
+    });
+
+    return Array.from(gradeTypeMap.entries()).map(([type, data]) => ({
+      name: type,
+      average: Math.round(data.total / data.count),
+      count: data.count,
+      fill: getGradeTypeColor(type)
+    })).sort((a, b) => b.average - a.average);
+  };
+
+  const getGradeTypeColor = (type: string) => {
+    const colors = {
+      'Midterm Exam': 'hsl(var(--primary))',
+      'Final Exam': 'hsl(var(--destructive))',
+      'Assignment': 'hsl(var(--secondary))',
+      'Quiz': 'hsl(var(--accent))',
+      'Lab Report': 'hsl(142 76% 36%)',
+      'Project': 'hsl(263 70% 50%)',
+      'Homework': 'hsl(217 91% 60%)',
+      'Presentation': 'hsl(150 60% 70%)'
+    };
+    return colors[type as keyof typeof colors] || 'hsl(var(--muted))';
+  };
+
+  const getPerformanceTrend = () => {
+    const allGrades = subjects.flatMap(subject => 
+      subject.grades.map(grade => ({
+        ...grade,
+        subject: subject.name,
+        percentage: (grade.score / grade.maxScore) * 100,
+        date: new Date(grade.date)
+      }))
+    ).sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    // Group by month for trend analysis
+    const monthlyData = new Map();
+    allGrades.forEach(grade => {
+      const monthKey = `${grade.date.getFullYear()}-${String(grade.date.getMonth() + 1).padStart(2, '0')}`;
+      if (!monthlyData.has(monthKey)) {
+        monthlyData.set(monthKey, { total: 0, count: 0 });
+      }
+      const current = monthlyData.get(monthKey);
+      current.total += grade.percentage;
+      current.count += 1;
+    });
+
+    return Array.from(monthlyData.entries()).map(([month, data]) => ({
+      month,
+      average: Math.round(data.total / data.count),
+      count: data.count
+    }));
+  };
+
+  const getGradeDistribution = () => {
+    const allGrades = subjects.flatMap(subject => 
+      subject.grades.map(grade => (grade.score / grade.maxScore) * 100)
+    );
+
+    const distribution = {
+      'A (90-100%)': allGrades.filter(g => g >= 90).length,
+      'B (80-89%)': allGrades.filter(g => g >= 80 && g < 90).length,
+      'C (70-79%)': allGrades.filter(g => g >= 70 && g < 80).length,
+      'D (60-69%)': allGrades.filter(g => g >= 60 && g < 70).length,
+      'F (<60%)': allGrades.filter(g => g < 60).length,
+    };
+
+    const colors = ['hsl(142 76% 36%)', 'hsl(217 91% 60%)', 'hsl(263 70% 50%)', 'hsl(var(--warning))', 'hsl(var(--destructive))'];
+
+    return Object.entries(distribution).map(([grade, count], index) => ({
+      name: grade,
+      value: count,
+      fill: colors[index]
+    })).filter(item => item.value > 0);
+  };
+
+  const generateInsights = () => {
+    const performance = getSubjectPerformance();
+    const gradeTypePerformance = getPerformanceByGradeType();
+    const insights = [];
+
+    // Subject-based insights
+    const weakestSubject = performance[0];
+    const strongestSubject = performance[performance.length - 1];
+
+    if (weakestSubject && strongestSubject) {
+      insights.push({
+        type: 'subject',
+        title: 'Subject Performance Gap',
+        description: `${strongestSubject.name} (${strongestSubject.average.toFixed(1)}%) outperforms ${weakestSubject.name} (${weakestSubject.average.toFixed(1)}%) by ${(strongestSubject.average - weakestSubject.average).toFixed(1)} points.`,
+        recommendation: `Focus additional study time on ${weakestSubject.name}. Consider applying successful strategies from ${strongestSubject.name}.`
+      });
+    }
+
+    // Grade type insights
+    if (gradeTypePerformance.length > 1) {
+      const weakestType = gradeTypePerformance[gradeTypePerformance.length - 1];
+      const strongestType = gradeTypePerformance[0];
+      
+      insights.push({
+        type: 'assessment',
+        title: 'Assessment Type Analysis',
+        description: `You perform best on ${strongestType.name} (${strongestType.average}%) and struggle most with ${weakestType.name} (${weakestType.average}%).`,
+        recommendation: `Practice more ${weakestType.name.toLowerCase()} formats. Consider different preparation strategies for this assessment type.`
+      });
+    }
+
+    // Trend insights
+    const declining = performance.filter(s => s.trend === 'declining');
+    if (declining.length > 0) {
+      insights.push({
+        type: 'trend',
+        title: 'Performance Decline Alert',
+        description: `${declining.length} subject(s) showing declining performance: ${declining.map(s => s.name).join(', ')}.`,
+        recommendation: 'Review recent study habits and consider adjusting your approach for these subjects.'
+      });
+    }
+
+    return insights;
+  };
+
   const getRecommendations = () => {
     const performance = getSubjectPerformance();
     const recommendations = [];
@@ -114,7 +251,8 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
         type: 'urgent',
         title: 'Immediate Attention Required',
         subjects: poorPerforming.slice(0, 2).map(s => s.name),
-        description: 'These subjects need immediate focus to improve your overall GPA.'
+        description: 'These subjects need immediate focus to improve your overall GPA.',
+        action: 'Schedule extra study sessions and seek help if needed.'
       });
     }
     
@@ -125,7 +263,8 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
         type: 'warning',
         title: 'Performance Declining',
         subjects: declining.map(s => s.name),
-        description: 'These subjects show a declining trend. Consider adjusting your study strategy.'
+        description: 'These subjects show a declining trend. Consider adjusting your study strategy.',
+        action: 'Review recent assignments and identify areas of confusion.'
       });
     }
     
@@ -136,7 +275,8 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
         type: 'positive',
         title: 'Great Progress',
         subjects: improving.map(s => s.name),
-        description: 'Keep up the excellent work in these subjects!'
+        description: 'Keep up the excellent work in these subjects!',
+        action: 'Continue current study methods and consider sharing strategies with other subjects.'
       });
     }
     
@@ -146,6 +286,10 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
   const performance = getSubjectPerformance();
   const recommendations = getRecommendations();
   const overallGPA = getOverallGPA();
+  const gradeTypeData = getPerformanceByGradeType();
+  const trendData = getPerformanceTrend();
+  const distributionData = getGradeDistribution();
+  const insights = generateInsights();
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
@@ -196,7 +340,7 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <div className="text-3xl font-bold">{overallGPA.toFixed(2)}</div>
               <div className="text-sm opacity-90">Current GPA</div>
@@ -205,9 +349,175 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
               <div className="text-3xl font-bold">{subjects.length}</div>
               <div className="text-sm opacity-90">Active Subjects</div>
             </div>
+            <div>
+              <div className="text-3xl font-bold">{subjects.reduce((sum, s) => sum + s.grades.length, 0)}</div>
+              <div className="text-sm opacity-90">Total Grades</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold">{Math.round(subjects.reduce((sum, s) => sum + calculateSubjectAverage(s), 0) / subjects.length)}%</div>
+              <div className="text-sm opacity-90">Avg Performance</div>
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Insights */}
+      <Card className="bg-card border-border shadow-elegant">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-primary" />
+            AI-Generated Insights
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {insights.map((insight, index) => (
+            <div key={index} className="p-4 rounded-lg bg-muted/30 border border-border">
+              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                {insight.type === 'subject' && <BookOpen className="w-4 h-4 text-primary" />}
+                {insight.type === 'assessment' && <BarChart3 className="w-4 h-4 text-secondary" />}
+                {insight.type === 'trend' && <TrendingDown className="w-4 h-4 text-warning" />}
+                {insight.title}
+              </h4>
+              <p className="text-sm text-muted-foreground mb-2">{insight.description}</p>
+              <p className="text-sm text-primary font-medium">💡 {insight.recommendation}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Performance by Grade Type */}
+      {gradeTypeData.length > 0 && (
+        <Card className="bg-card border-border shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-primary" />
+              Performance by Assessment Type
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={gradeTypeData}>
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fontSize: 12 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <ChartTooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                            <p className="font-medium">{label}</p>
+                            <p className="text-primary">Average: {payload[0].value}%</p>
+                            <p className="text-muted-foreground text-sm">
+                              {gradeTypeData.find(d => d.name === label)?.count} assessments
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="average" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+              {gradeTypeData.map((item) => (
+                <div key={item.name} className="flex items-center justify-between p-2 rounded bg-muted/20">
+                  <span className="text-sm font-medium">{item.name}</span>
+                  <div className="text-right">
+                    <div className="text-sm font-bold">{item.average}%</div>
+                    <div className="text-xs text-muted-foreground">{item.count} items</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Grade Distribution */}
+      {distributionData.length > 0 && (
+        <Card className="bg-card border-border shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-primary" />
+              Grade Distribution
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={distributionData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    dataKey="value"
+                    label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                  >
+                    {distributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Performance Trend */}
+      {trendData.length > 1 && (
+        <Card className="bg-card border-border shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              Performance Trend Over Time
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData}>
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <ChartTooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                            <p className="font-medium">{label}</p>
+                            <p className="text-primary">Average: {payload[0].value}%</p>
+                            <p className="text-muted-foreground text-sm">
+                              {trendData.find(d => d.month === label)?.count} grades
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="average" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recommendations */}
       <div className="space-y-4">
@@ -244,6 +554,7 @@ export const AIPerformanceReport = ({ subjects }: AIPerformanceReportProps) => {
                     <div className="flex-1">
                       <h4 className="font-semibold text-foreground mb-1">{rec.title}</h4>
                       <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
+                      <p className="text-sm text-primary font-medium mb-2">🎯 {rec.action}</p>
                       <div className="flex flex-wrap gap-1">
                         {rec.subjects.map((subject, idx) => (
                           <Badge key={idx} variant="secondary" className="text-xs">

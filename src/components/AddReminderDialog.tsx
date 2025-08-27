@@ -90,36 +90,37 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
         {children || (
           <Button className="bg-gradient-primary text-white border-0 shadow-soft">
             <Plus className="w-4 h-4 mr-2" />
-            Add Task
+            Add Reminder
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-gray-900 border-border">
         <DialogHeader>
-          <DialogTitle>Add New Reminder</DialogTitle>
+          <DialogTitle className="text-foreground">Add New Reminder</DialogTitle>
           <DialogDescription>
             Create a new reminder with date and time settings.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">Reminder Title</Label>
+            <Label htmlFor="title" className="text-foreground">Reminder Title</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter reminder title..."
+              className="bg-white dark:bg-gray-800 border-border text-foreground"
             />
           </div>
           
           <div className="grid gap-2">
-            <Label>Due Date</Label>
+            <Label className="text-foreground">Due Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full justify-start text-left font-normal bg-white dark:bg-gray-800 border-border text-foreground",
                     !date && "text-muted-foreground"
                   )}
                 >
@@ -127,7 +128,7 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-900 border-border">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -140,31 +141,33 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="time">Time</Label>
+            <Label htmlFor="time" className="text-foreground">Time</Label>
             <Input
               id="time"
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
+              className="bg-white dark:bg-gray-800 border-border text-foreground"
             />
           </div>
 
           <div className="grid gap-2">
-            <Label>Description</Label>
+            <Label className="text-foreground">Description</Label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional description..."
+              className="bg-white dark:bg-gray-800 border-border text-foreground"
             />
           </div>
 
           <div className="grid gap-2">
-            <Label>Type</Label>
+            <Label className="text-foreground">Type</Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white dark:bg-gray-800 border-border text-foreground">
                 <SelectValue placeholder="Select reminder type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-gray-900 border-border">
                 <SelectItem value="Personal">Personal</SelectItem>
                 <SelectItem value="Study">Study</SelectItem>
                 <SelectItem value="Assignment">Assignment</SelectItem>
@@ -182,14 +185,14 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
                 id="recurring"
                 checked={recurring}
                 onChange={(e) => setRecurring(e.target.checked)}
-                className="rounded border-gray-300"
+                className="rounded border-border bg-white dark:bg-gray-800"
               />
-              <Label htmlFor="recurring" className="text-sm">Recurring reminder</Label>
+              <Label htmlFor="recurring" className="text-sm text-foreground">Recurring reminder</Label>
             </div>
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleSubmit}>
+          <Button type="submit" onClick={handleSubmit} className="bg-gradient-primary text-white">
             Add Reminder
           </Button>
         </DialogFooter>

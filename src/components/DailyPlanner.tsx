@@ -161,18 +161,18 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'high': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-700';
+      case 'medium': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-700';
+      case 'low': return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-700';
+      default: return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700';
     }
   };
 
   return (
-    <Card className="w-full animate-fade-in bg-card/90 dark:bg-card/50 backdrop-blur-md border border-border/50">
+    <Card className="w-full animate-fade-in bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border border-border/50 shadow-card">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-blue-600" />
+          <Calendar className="h-5 w-5 text-primary" />
           Today's Schedule
         </CardTitle>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -182,7 +182,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
               Add Task
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md bg-card border-border">
+          <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border-border">
             <DialogHeader>
               <DialogTitle className="text-foreground">Add New Task</DialogTitle>
             </DialogHeader>
@@ -194,7 +194,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                   placeholder="Enter task title"
-                  className="bg-background border-border text-foreground"
+                  className="bg-white dark:bg-gray-800 border-border text-foreground"
                 />
               </div>
               <div>
@@ -204,16 +204,16 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                   type="time"
                   value={newTask.time}
                   onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
-                  className="bg-background border-border text-foreground"
+                  className="bg-white dark:bg-gray-800 border-border text-foreground"
                 />
               </div>
               <div>
                 <Label htmlFor="priority" className="text-foreground">Priority</Label>
                 <Select value={newTask.priority} onValueChange={(value: 'high' | 'medium' | 'low') => setNewTask({ ...newTask, priority: value })}>
-                  <SelectTrigger className="bg-background border-border text-foreground">
+                  <SelectTrigger className="bg-white dark:bg-gray-800 border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-background border-border">
+                  <SelectContent className="bg-white dark:bg-gray-900 border-border">
                     <SelectItem value="high" className="text-foreground">High</SelectItem>
                     <SelectItem value="medium" className="text-foreground">Medium</SelectItem>
                     <SelectItem value="low" className="text-foreground">Low</SelectItem>
@@ -228,7 +228,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                   onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                   placeholder="Optional description"
                   rows={3}
-                  className="bg-background border-border text-foreground"
+                  className="bg-white dark:bg-gray-800 border-border text-foreground"
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -237,7 +237,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                   id="reminder"
                   checked={newTask.hasReminder}
                   onChange={(e) => setNewTask({ ...newTask, hasReminder: e.target.checked })}
-                  className="rounded border-gray-300"
+                  className="rounded border-border bg-white dark:bg-gray-800"
                 />
                 <Label htmlFor="reminder" className="text-sm text-foreground">Set reminder notification</Label>
               </div>
@@ -266,9 +266,9 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
               <div
                 key={item.id}
                 className={`p-4 rounded-lg border transition-all duration-200 hover:shadow-md animate-slide-in ${
-                  item.completed ? 'bg-muted/50 opacity-75' : 'bg-card/80 dark:bg-card/50 backdrop-blur-sm'
+                  item.completed ? 'bg-muted/50 opacity-75' : 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'
                 }`}
-                style={{ borderColor: 'hsl(var(--border))', animationDelay: `${index * 100}ms` }}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3 flex-1">
@@ -276,7 +276,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                       type="checkbox"
                       checked={item.completed}
                       onChange={() => item.type === 'task' && toggleTaskCompletion(item.id)}
-                      className="mt-1 rounded border-gray-300"
+                      className="mt-1 rounded border-border bg-white dark:bg-gray-800"
                       disabled={item.type === 'assignment'}
                     />
                     <div className="flex-1">
@@ -293,7 +293,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                           </Badge>
                         )}
                         {item.hasReminder && (
-                          <Bell className="h-3 w-3 text-blue-600" />
+                          <Bell className="h-3 w-3 text-primary" />
                         )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -302,7 +302,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                           {item.time}
                         </div>
                         {item.type === 'assignment' && 'subject' in item && (
-                          <span className="text-blue-600 font-medium">{item.subject}</span>
+                          <span className="text-primary font-medium">{item.subject}</span>
                         )}
                       </div>
                       {item.description && (
@@ -314,7 +314,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                             <span>Progress</span>
                             <span>{item.progress}%</span>
                           </div>
-                          <div className="w-full bg-muted rounded-full h-2">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                             <div
                               className="bg-gradient-primary h-2 rounded-full transition-all duration-300"
                               style={{ width: `${item.progress}%` }}

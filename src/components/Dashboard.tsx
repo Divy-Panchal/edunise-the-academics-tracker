@@ -61,12 +61,14 @@ const Dashboard = () => {
     loadReminders();
     
     // Set up reminder checking interval
-    const reminderInterval = setInterval(() => {
-      loadReminders();
-    }, 60000); // Check every minute
+    const reminderInterval = setInterval(checkReminders, 60000); // Check every minute
     
     return () => clearInterval(reminderInterval);
   }, []);
+
+  const checkReminders = () => {
+    loadReminders();
+  };
 
   const loadUserData = async () => {
     try {
@@ -234,11 +236,9 @@ const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
 
   useEffect(() => {
-    const updateTime = () => {
+    const timer = setInterval(() => {
       setCurrentTime(getCurrentTime());
-    };
-    
-    const timer = setInterval(updateTime, 1000);
+    }, 1000);
 
     return () => clearInterval(timer);
   }, []);
@@ -370,7 +370,7 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Reminders */}
-      <Card className="shadow-card hover-lift animate-slide-in-up bg-card/90 dark:bg-card/50 backdrop-blur-md border border-border/50" style={{ animationDelay: '0.2s' }}>
+      <Card className="shadow-card hover-lift animate-slide-in-up bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border border-border/50" style={{ animationDelay: '0.2s' }}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-primary animate-bounce-gentle" />
@@ -387,7 +387,7 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-3">
               {reminders.slice(0, 3).map((reminder: any) => (
-                <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-card/80 dark:bg-card/30 border border-border hover:shadow-card transition-smooth hover-lift animate-scale-in">
+                <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-white/80 dark:bg-gray-800/80 border border-border hover:shadow-card transition-smooth hover-lift animate-scale-in">
                   <div className="flex-1">
                     <h4 className="font-medium text-foreground">{reminder.title}</h4>
                     {reminder.description && (

@@ -6,13 +6,18 @@ import Planner from "./Planner";
 import Focus from "./Focus";
 import GradeTracker from "./GradeTracker";
 import BottomNavigation from "./BottomNavigation";
+import ReminderNotificationSystem from "./ReminderNotificationSystem";
 import { User, Session } from '@supabase/supabase-js';
+import { Tables } from "@/integrations/supabase/types";
+
+type Reminder = Tables<'reminders'>;
 
 const EduNiseApp = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeReminders, setActiveReminders] = useState<Reminder[]>([]);
 
   useEffect(() => {
     // Set up auth state listener
@@ -38,6 +43,9 @@ const EduNiseApp = () => {
     // Auth state will be updated by the listener
   };
 
+  const handleActiveReminders = (reminders: Reminder[]) => {
+    setActiveReminders(reminders);
+  };
   const renderActiveScreen = () => {
     switch (activeTab) {
       case "dashboard":
@@ -84,6 +92,7 @@ const EduNiseApp = () => {
 
   return (
     <div className="min-h-screen bg-gradient-bg">
+      <ReminderNotificationSystem onActiveReminders={handleActiveReminders} />
       {renderActiveScreen()}
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>

@@ -169,7 +169,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
   };
 
   return (
-    <Card className="w-full animate-fade-in">
+    <Card className="w-full animate-fade-in bg-card/90 dark:bg-card/50 backdrop-blur-md border border-border/50">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-blue-600" />
@@ -177,55 +177,58 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
         </CardTitle>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Button size="sm" className="bg-gradient-primary hover:opacity-90 text-white border-0 shadow-soft">
               <Plus className="h-4 w-4 mr-1" />
               Add Task
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md bg-card border-border">
             <DialogHeader>
-              <DialogTitle>Add New Task</DialogTitle>
+              <DialogTitle className="text-foreground">Add New Task</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title">Task Title *</Label>
+                <Label htmlFor="title" className="text-foreground">Task Title *</Label>
                 <Input
                   id="title"
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                   placeholder="Enter task title"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div>
-                <Label htmlFor="time">Time *</Label>
+                <Label htmlFor="time" className="text-foreground">Time *</Label>
                 <Input
                   id="time"
                   type="time"
                   value={newTask.time}
                   onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div>
-                <Label htmlFor="priority">Priority</Label>
+                <Label htmlFor="priority" className="text-foreground">Priority</Label>
                 <Select value={newTask.priority} onValueChange={(value: 'high' | 'medium' | 'low') => setNewTask({ ...newTask, priority: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
+                  <SelectContent className="bg-background border-border">
+                    <SelectItem value="high" className="text-foreground">High</SelectItem>
+                    <SelectItem value="medium" className="text-foreground">Medium</SelectItem>
+                    <SelectItem value="low" className="text-foreground">Low</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-foreground">Description</Label>
                 <Textarea
                   id="description"
                   value={newTask.description}
                   onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                   placeholder="Optional description"
                   rows={3}
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -236,13 +239,13 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                   onChange={(e) => setNewTask({ ...newTask, hasReminder: e.target.checked })}
                   className="rounded border-gray-300"
                 />
-                <Label htmlFor="reminder" className="text-sm">Set reminder notification</Label>
+                <Label htmlFor="reminder" className="text-sm text-foreground">Set reminder notification</Label>
               </div>
               <div className="flex gap-2 pt-4">
-                <Button onClick={addTask} className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <Button onClick={addTask} className="flex-1 bg-gradient-primary hover:opacity-90 text-white">
                   Add Task
                 </Button>
-                <Button variant="outline" onClick={() => setIsOpen(false)} className="flex-1">
+                <Button variant="outline" onClick={() => setIsOpen(false)} className="flex-1 border-border text-foreground">
                   Cancel
                 </Button>
               </div>
@@ -252,8 +255,8 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
       </CardHeader>
       <CardContent>
         {allItems.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <div className="text-center py-8 text-muted-foreground">
+            <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
             <p>No tasks scheduled for today</p>
             <p className="text-sm">Add a task to get started!</p>
           </div>
@@ -263,9 +266,9 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
               <div
                 key={item.id}
                 className={`p-4 rounded-lg border transition-all duration-200 hover:shadow-md animate-slide-in ${
-                  item.completed ? 'bg-gray-50 opacity-75' : 'bg-white'
+                  item.completed ? 'bg-muted/50 opacity-75' : 'bg-card/80 dark:bg-card/50 backdrop-blur-sm'
                 }`}
-                style={{ animationDelay: `${index * 100}ms` }}
+                style={{ borderColor: 'hsl(var(--border))', animationDelay: `${index * 100}ms` }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3 flex-1">
@@ -278,7 +281,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className={`font-medium ${item.completed ? 'line-through text-gray-500' : ''}`}>
+                        <h4 className={`font-medium ${item.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                           {item.title}
                         </h4>
                         <Badge className={`text-xs ${getPriorityColor(item.priority)}`}>
@@ -293,7 +296,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                           <Bell className="h-3 w-3 text-blue-600" />
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {item.time}
@@ -303,17 +306,17 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                         )}
                       </div>
                       {item.description && (
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
                       )}
                       {item.type === 'assignment' && 'progress' in item && (
                         <div className="mt-2">
-                          <div className="flex justify-between text-xs text-gray-600 mb-1">
+                          <div className="flex justify-between text-xs text-muted-foreground mb-1">
                             <span>Progress</span>
                             <span>{item.progress}%</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-muted rounded-full h-2">
                             <div
-                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-primary h-2 rounded-full transition-all duration-300"
                               style={{ width: `${item.progress}%` }}
                             />
                           </div>
@@ -326,7 +329,7 @@ export default function DailyPlanner({ assignments = [] }: DailyPlannerProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteTask(item.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

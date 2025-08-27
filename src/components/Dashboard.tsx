@@ -13,6 +13,7 @@ import ResourceLocker from "./ResourceLocker";
 import MotivationalTodo from "./MotivationalTodo";
 import QuickStats from "./QuickStats";
 import FlashcardQuiz from "./FlashcardQuiz";
+import { Tables } from "@/integrations/supabase/types";
 
 import { 
   Calendar, 
@@ -29,13 +30,17 @@ import {
   Plus,
   Target,
   LogOut,
-  Trash2
+  Trash2,
+  X
 } from "lucide-react";
+
+type Reminder = Tables<'reminders'>;
 
 const Dashboard = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [reminders, setReminders] = useState([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [profile, setProfile] = useState(null);
+  const [activeReminders, setActiveReminders] = useState<Reminder[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -46,9 +51,21 @@ const Dashboard = () => {
       document.documentElement.classList.add('dark');
     }
     
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    
     // Load user data and reminders
     loadUserData();
     loadReminders();
+    
+    // Set up reminder checking interval
+    const reminderInterval = setInterval(() => {
+      loadReminders();
+    }, 60000); // Check every minute
+    
+    return () => clearInterval(reminderInterval);
   }, []);
 
   const loadUserData = async () => {
@@ -77,12 +94,80 @@ const Dashboard = () => {
           .eq('user_id', user.id)
           .eq('enabled', true)
           .order('created_at', { ascending: false })
-          .limit(5);
+          .limit(10);
         setReminders(data || []);
+        
+        // Check for reminders that should be active now
+        checkActiveReminders(data || []);
       }
     } catch (error) {
       console.error('Error loading reminders:', error);
     }
+  };
+
+  const checkActiveReminders = (reminderList: Reminder[]) => {
+    const now = new Date();
+    const currentDate = now.toISOString().split('T')[0];
+    const currentTime = now.toTimeString().slice(0, 5);
+    
+    const activeNow = reminderList.filter(reminder => {
+      return reminder.reminder_date === currentDate && 
+             reminder.reminder_time <= currentTime &&
+             reminder.enabled;
+    });
+    
+    setActiveReminders(activeNow);
+    
+    // Show notifications for active reminders
+    activeNow.forEach(reminder => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(`Reminder: ${reminder.title}`, {
+          body: reminder.description || '',
+          icon: '/favicon.ico'
+        });
+      }
+      
+      toast({
+        title: `🔔 ${reminder.title}`,
+        description: reminder.description || `Time for your ${reminder.type.toLowerCase()} reminder!`,
+        duration: 10000,
+      });
+    });
+  };
+
+  const addReminder = async (reminderData: Omit<Reminder, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('reminders')
+        .insert([{
+          ...reminderData,
+          user_id: user.id
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Reminder Added! 🔔",
+        description: `${reminderData.title} has been scheduled.`,
+      });
+      
+      loadReminders();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const dismissActiveReminder = (reminderId: string) => {
+    setActiveReminders(prev => prev.filter(r => r.id !== reminderId));
   };
 
   const toggleDarkMode = () => {
@@ -190,7 +275,7 @@ const Dashboard = () => {
           </Button>
 
           {/* Add Reminder Button */}
-          <AddReminderDialog onAddTask={() => Promise.resolve()} />
+          <AddReminderDialog onAddTask={addReminder} />
 
           {/* Profile Dropdown */}
           <DropdownMenu>
@@ -227,6 +312,45 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Active Reminder Notifications */}
+      {activeReminders.length > 0 && (
+        <div className="fixed top-4 right-4 z-50 space-y-2 animate-slide-in-right">
+          {activeReminders.map((reminder) => (
+            <Card key={reminder.id} className="w-80 bg-gradient-primary text-white border-0 shadow-glow">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Bell className="w-4 h-4" />
+                      <h4 className="font-semibold">{reminder.title}</h4>
+                    </div>
+                    {reminder.description && (
+                      <p className="text-sm opacity-90">{reminder.description}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary" className="bg-white/20 text-white">
+                        {reminder.type}
+                      </Badge>
+                      <span className="text-xs opacity-75">
+                        {reminder.reminder_time}
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => dismissActiveReminder(reminder.id)}
+                    className="text-white hover:bg-white/20 h-6 w-6 p-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* Main Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slide-in-up" style={{ animationDelay: '0.1s' }}>
         {/* Daily Planner */}
@@ -246,7 +370,7 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Reminders */}
-      <Card className="shadow-card hover-lift animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
+      <Card className="shadow-card hover-lift animate-slide-in-up bg-card/90 dark:bg-card/50 backdrop-blur-md border border-border/50" style={{ animationDelay: '0.2s' }}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-primary animate-bounce-gentle" />
@@ -263,10 +387,12 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-3">
               {reminders.slice(0, 3).map((reminder: any) => (
-                <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-card border border-border hover:shadow-card transition-smooth hover-lift animate-scale-in">
+                <div key={reminder.id} className="flex items-center justify-between p-4 rounded-xl bg-card/80 dark:bg-card/30 border border-border hover:shadow-card transition-smooth hover-lift animate-scale-in">
                   <div className="flex-1">
-                    <h4 className="font-medium">{reminder.title}</h4>
-                    <p className="text-sm text-muted-foreground">{reminder.description}</p>
+                    <h4 className="font-medium text-foreground">{reminder.title}</h4>
+                    {reminder.description && (
+                      <p className="text-sm text-muted-foreground">{reminder.description}</p>
+                    )}
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="secondary">{reminder.type}</Badge>
                       <span className="text-xs text-muted-foreground">

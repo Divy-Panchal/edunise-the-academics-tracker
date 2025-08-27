@@ -40,7 +40,15 @@ interface Task {
 }
 
 interface AddReminderDialogProps {
-  onAddTask: (task: Omit<Task, 'id' | 'completed'>) => void;
+  onAddTask: (reminder: {
+    title: string;
+    description?: string;
+    reminder_time: string;
+    reminder_date: string;
+    enabled: boolean;
+    type: string;
+    recurring: boolean;
+  }) => void;
   children?: React.ReactNode;
 }
 
@@ -50,18 +58,19 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState("");
   const [type, setType] = useState("");
-  const [priority, setPriority] = useState("");
-  const [subject, setSubject] = useState("");
+  const [description, setDescription] = useState("");
+  const [recurring, setRecurring] = useState(false);
 
   const handleSubmit = () => {
-    if (title && date && time && type && priority && subject) {
+    if (title && date && time && type) {
       onAddTask({
         title,
-        date,
-        time,
+        description,
+        reminder_time: time,
+        reminder_date: format(date, 'yyyy-MM-dd'),
+        enabled: true,
         type,
-        priority,
-        subject,
+        recurring,
       });
       
       // Reset form
@@ -69,8 +78,8 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
       setDate(undefined);
       setTime("");
       setType("");
-      setPriority("");
-      setSubject("");
+      setDescription("");
+      setRecurring(false);
       setOpen(false);
     }
   };
@@ -87,19 +96,19 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Task</DialogTitle>
+          <DialogTitle>Add New Reminder</DialogTitle>
           <DialogDescription>
-            Create a new task with date, time, and priority settings.
+            Create a new reminder with date and time settings.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">Task Title</Label>
+            <Label htmlFor="title">Reminder Title</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task title..."
+              placeholder="Enter reminder title..."
             />
           </div>
           
@@ -141,11 +150,11 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
           </div>
 
           <div className="grid gap-2">
-            <Label>Subject</Label>
+            <Label>Description</Label>
             <Input
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Enter subject..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional description..."
             />
           </div>
 
@@ -153,36 +162,35 @@ const AddReminderDialog = ({ onAddTask, children }: AddReminderDialogProps) => {
             <Label>Type</Label>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger>
-                <SelectValue placeholder="Select task type" />
+                <SelectValue placeholder="Select reminder type" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="Personal">Personal</SelectItem>
+                <SelectItem value="Study">Study</SelectItem>
                 <SelectItem value="Assignment">Assignment</SelectItem>
                 <SelectItem value="Exam">Exam</SelectItem>
-                <SelectItem value="Lab">Lab</SelectItem>
-                <SelectItem value="Study">Study</SelectItem>
-                <SelectItem value="Project">Project</SelectItem>
-                <SelectItem value="Quiz">Quiz</SelectItem>
+                <SelectItem value="Meeting">Meeting</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="grid gap-2">
-            <Label>Priority</Label>
-            <Select value={priority} onValueChange={setPriority}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="High">High</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="Low">Low</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="recurring"
+                checked={recurring}
+                onChange={(e) => setRecurring(e.target.checked)}
+                className="rounded border-gray-300"
+              />
+              <Label htmlFor="recurring" className="text-sm">Recurring reminder</Label>
+            </div>
           </div>
         </div>
         <DialogFooter>
           <Button type="submit" onClick={handleSubmit}>
-            Add Task
+            Add Reminder
           </Button>
         </DialogFooter>
       </DialogContent>

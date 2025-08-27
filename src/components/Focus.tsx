@@ -111,7 +111,7 @@ const Focus = () => {
     let interval: NodeJS.Timeout | null = null;
 
     if (isActive && !isPaused) {
-      interval = setInterval(() => {
+      const tick = () => {
         setTimeLeft(timeLeft => {
           if (timeLeft === 0) {
             // Session completed
@@ -134,7 +134,8 @@ const Focus = () => {
           }
           return timeLeft - 1;
         });
-      }, 1000);
+      };
+      interval = setInterval(tick, 1000);
     } else if (!isActive) {
       clearInterval(interval!);
     }

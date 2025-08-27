@@ -149,9 +149,11 @@ const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const updateTime = () => {
       setCurrentTime(getCurrentTime());
-    }, 1000);
+    };
+    
+    const timer = setInterval(updateTime, 1000);
 
     return () => clearInterval(timer);
   }, []);

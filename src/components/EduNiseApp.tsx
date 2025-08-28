@@ -4,7 +4,7 @@ import AuthScreen from "./AuthScreen";
 import Dashboard from "./Dashboard";
 import Planner from "./Planner";
 import Focus from "./Focus";
-import GradeTracker from "./GradeTracker";
+import { GradeTracker } from "./GradeTracker";
 import BottomNavigation from "./BottomNavigation";
 import ReminderNotificationSystem from "./ReminderNotificationSystem";
 import { User, Session } from '@supabase/supabase-js';

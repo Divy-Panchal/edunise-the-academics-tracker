@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      grades: {
+        Row: {
+          assignment: string
+          created_at: string
+          date: string
+          id: string
+          max_score: number
+          score: number
+          subject: string
+          type: string
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          assignment: string
+          created_at?: string
+          date: string
+          id?: string
+          max_score: number
+          score: number
+          subject: string
+          type?: string
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          assignment?: string
+          created_at?: string
+          date?: string
+          id?: string
+          max_score?: number
+          score?: number
+          subject?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

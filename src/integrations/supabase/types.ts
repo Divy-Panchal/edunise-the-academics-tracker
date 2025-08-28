@@ -125,6 +125,51 @@ export type Database = {
         }
         Relationships: []
       }
+      subjects: {
+        Row: {
+          code: string
+          color: string | null
+          created_at: string
+          credits: number
+          description: string | null
+          id: string
+          instructor: string | null
+          name: string
+          semester: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          code: string
+          color?: string | null
+          created_at?: string
+          credits?: number
+          description?: string | null
+          id?: string
+          instructor?: string | null
+          name: string
+          semester: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          code?: string
+          color?: string | null
+          created_at?: string
+          credits?: number
+          description?: string | null
+          id?: string
+          instructor?: string | null
+          name?: string
+          semester?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
